@@ -15,7 +15,10 @@ DAGS_FOLDER = "dags"
 
 @pytest.fixture(scope="module")
 def dagbag() -> DagBag:
-    return DagBag(dag_folder=DAGS_FOLDER, include_examples=False)
+    # Airflow 3.x: `DagBag` não tem mais `include_examples` — sem
+    # AIRFLOW__CORE__LOAD_EXAMPLES=true no ambiente, só os DAGs de
+    # `dag_folder` são carregados de qualquer forma.
+    return DagBag(dag_folder=DAGS_FOLDER)
 
 
 def test_dagbag_tem_pelo_menos_um_dag(dagbag):
@@ -27,7 +30,7 @@ def test_nenhum_erro_de_import(dagbag):
 
 
 def test_dag_principal_carrega_com_as_tasks_esperadas(dagbag):
-    dag = dagbag.get_dag("ecommerce_daily_elt")
+    dag = dagbag.dags.get("ecommerce_daily_elt")
     assert dag is not None
 
     task_ids = set(dag.task_ids)
@@ -52,12 +55,12 @@ def test_todas_as_tasks_tem_retry_configurado(dagbag):
 
 def test_dags_nao_tem_ciclo(dagbag):
     for dag in dagbag.dags.values():
-        dag.topological_sort()  # levanta se houver dependência circular
+        dag.check_cycle()  # levanta AirflowDagCycleException se houver dependência circular
 
 
 def test_dag_nao_roda_catchup_por_acidente(dagbag):
     """catchup=True por engano faria o Airflow tentar rodar todo o
     histórico desde start_date na primeira ativação — comum causa de
     surpresa desagradável em produção."""
-    dag = dagbag.get_dag("ecommerce_daily_elt")
+    dag = dagbag.dags.get("ecommerce_daily_elt")
     assert dag.catchup is False

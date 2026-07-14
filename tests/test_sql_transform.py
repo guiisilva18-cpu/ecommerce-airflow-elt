@@ -100,7 +100,7 @@ def test_checks_detectam_pedido_orfao(conexao):
         cur.execute(
             "INSERT INTO warehouse.fact_orders "
             "(order_id, customer_id, product_id, order_date, quantity, unit_price, revenue, margin, status) "
-            "SELECT 'O-ORFAO-001', 'CLIENTE-INEXISTENTE', product_id, order_date, 1, 10.0, 10.0, 5.0, 'completed' "
+            "SELECT 'O-ORFAO-001', 'CLIENTE-INEXISTENTE', product_id, DATE '2026-03-11', 1, 10.0, 10.0, 5.0, 'completed' "
             "FROM warehouse.dim_products LIMIT 1"
         )
 
