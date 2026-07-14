@@ -16,7 +16,11 @@ import pytest
 psycopg2 = pytest.importorskip("psycopg2")
 
 from include.extract.fake_source import fetch_orders, fetch_products  # noqa: E402
-from include.quality.checks import DataQualityError, run_all_checks  # noqa: E402
+from include.quality.checks import (  # noqa: E402
+    DataQualityError,
+    check_referential_integrity,
+    run_all_checks,
+)
 
 SQL_DIR = Path(__file__).parent.parent / "include" / "sql"
 
@@ -104,6 +108,9 @@ def test_checks_detectam_pedido_orfao(conexao):
             "FROM warehouse.dim_products LIMIT 1"
         )
 
+    # Chama o check específico direto (não run_all_checks): a linha extra
+    # também deixaria check_row_counts inconsistente, e queremos provar
+    # especificamente que check_referential_integrity pega o órfão.
     fetch_scalar = _fetch_scalar(conexao)
     with pytest.raises(DataQualityError, match="sem cliente correspondente"):
-        run_all_checks(fetch_scalar)
+        check_referential_integrity(fetch_scalar)
