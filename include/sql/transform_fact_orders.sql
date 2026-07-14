@@ -1,10 +1,10 @@
 -- Reconstroi as dimensões e a fato a partir da raw carregada nesta execução.
--- Full refresh: TRUNCATE + INSERT, na ordem certa por causa das FKs
--- (dimensões antes da fato).
+-- Full refresh: TRUNCATE + INSERT (sem FK entre as tabelas — ver ddl_warehouse.sql
+-- — então a ordem aqui é só por clareza, não por constraint).
 
 TRUNCATE TABLE warehouse.fact_orders;
-TRUNCATE TABLE warehouse.dim_customers CASCADE;
-TRUNCATE TABLE warehouse.dim_products CASCADE;
+TRUNCATE TABLE warehouse.dim_customers;
+TRUNCATE TABLE warehouse.dim_products;
 
 INSERT INTO warehouse.dim_products (product_id, product_name, category, cost_price)
 SELECT DISTINCT product_id, product_name, category, cost_price

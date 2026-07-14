@@ -18,10 +18,15 @@ CREATE TABLE IF NOT EXISTS warehouse.dim_products (
     cost_price      NUMERIC(10, 2) NOT NULL
 );
 
+-- Sem FOREIGN KEY em customer_id/product_id de propósito: warehouses
+-- analíticos costumam não aplicar FK na tabela fato (custo de validação em
+-- cada load, e vários bancos colunares nem suportam FK enforced) — quem
+-- garante a integridade é a task `run_quality_checks` do DAG, depois do
+-- load, não uma constraint. Ver include/quality/checks.py.
 CREATE TABLE IF NOT EXISTS warehouse.fact_orders (
     order_id        VARCHAR(40) PRIMARY KEY,
-    customer_id     VARCHAR(40) NOT NULL REFERENCES warehouse.dim_customers(customer_id),
-    product_id      VARCHAR(40) NOT NULL REFERENCES warehouse.dim_products(product_id),
+    customer_id     VARCHAR(40) NOT NULL,
+    product_id      VARCHAR(40) NOT NULL,
     order_date      DATE NOT NULL,
     quantity        INTEGER NOT NULL,
     unit_price      NUMERIC(10, 2) NOT NULL,
