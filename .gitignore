@@ -1,0 +1,16 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+.airflow_venv/
+.venv/
+venv/
+
+.env
+
+# Volumes/artefatos que o Airflow cria ao rodar via docker-compose
+logs/
+plugins/
+config/
+
+# Bancos locais usados só em teste manual
+*.db

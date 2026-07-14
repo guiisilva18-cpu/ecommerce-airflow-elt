@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      PGHOST: localhost
+      PGPORT: 5432
+      PGUSER: test
+      PGPASSWORD: test
+      PGDATABASE: test
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Airflow + dependencies (com constraints oficiais)
+        run: |
+          CONSTRAINTS_URL="https://raw.githubusercontent.com/apache/airflow/constraints-3.3.0/constraints-3.12.txt"
+          pip install "apache-airflow==3.3.0" --constraint "$CONSTRAINTS_URL"
+          pip install -r requirements.txt -r requirements-dev.txt --constraint "$CONSTRAINTS_URL"
+
+      - name: Rodar testes (unitários + integridade de DAG + integração SQL)
+        run: pytest tests/ -v
