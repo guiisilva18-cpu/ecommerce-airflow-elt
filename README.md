@@ -1,5 +1,7 @@
 # E-commerce Airflow ELT
 
+[![CI](https://github.com/guiisilva18-cpu/ecommerce-airflow-elt/actions/workflows/ci.yml/badge.svg)](https://github.com/guiisilva18-cpu/ecommerce-airflow-elt/actions/workflows/ci.yml)
+
 Pipeline diário orquestrado com **Apache Airflow 3** (TaskFlow API): extrai
 pedidos e catálogo de produtos (fontes fictícias), carrega numa camada
 `raw` no Postgres, transforma num **star schema** e roda **checks de
